@@ -13,7 +13,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AplicationContext>(
     options => options.UseSqlServer("name=DefaultConnection"));
 builder.Services.AddControllers().AddJsonOptions(
-    x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles) ;
+    x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+builder.Services.AddAutoMapper(typeof(Program));
 
 var app = builder.Build();
 
