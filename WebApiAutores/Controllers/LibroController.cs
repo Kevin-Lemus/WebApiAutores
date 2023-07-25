@@ -32,7 +32,7 @@ namespace WebApiAutores.Controllers
         {
             var exist = await _context.Libros.AnyAsync(x => x.Id == id);
             if (!exist) return NotFound();
-            var libro = await _context.Libros.FirstOrDefaultAsync(x => x.Id == id);
+            var libro = await _context.Libros.Include(libroDb => libroDb.Comentarios).FirstOrDefaultAsync(x => x.Id == id);
             return mapper.Map<LibroDTO>(libro);
         }
 
