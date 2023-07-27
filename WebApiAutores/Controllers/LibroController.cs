@@ -39,9 +39,21 @@ namespace WebApiAutores.Controllers
         [HttpPost]
         public async Task<ActionResult> Post(LibroCreacionDTO libroDTO)
         {
-            var existeAutor = await _context.Autores.AnyAsync(x => x.Id == libroDTO.AutorId);
-            if (!existeAutor) return BadRequest("Autor no encontrado");
+            var autoresIds = await _context.Autores.
+                Where(autor => libroDTO.AutoresIds.Contains(autor.Id)).Select(x => x.Id).ToListAsync();
+            if (libroDTO.AutoresIds.Count() != autoresIds.Count())
+                return BadRequest("Uno o varios de los IDs de autores no fue encontrado");
+
             var libro = mapper.Map<Libro>(libroDTO);
+
+            if(libro.LibrosAutores != null)
+            {
+                for (int i = 0; i < libro.LibrosAutores.Count(); i++)
+                {
+                    libro.LibrosAutores[i].Orden = i;
+                }
+            }
+
             _context.Libros.Add(libro);
             await _context.SaveChangesAsync();
             return Ok();

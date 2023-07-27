@@ -11,6 +11,6 @@ namespace WebApiAutores.DTOs
         public string Titulo { get; set; }
 
         [Required(ErrorMessage = "El campo {0} es requerido")]
-        public int AutorId { get; set; }
+        public List<int> AutoresIds { get; set; }
     }
 }
