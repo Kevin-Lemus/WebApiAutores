@@ -8,13 +8,64 @@ namespace WebApiAutores.Utilidades
     {
         public AutoMapperProfiles()
         {
+            //metódo POST
             CreateMap<AutorCreacionDTO, Autor>();
-            CreateMap<Autor, AutorDTO>();
+            //metódo GET
+            CreateMap<Autor, AutorDTO>()
+                .ForMember(
+                    autorDTO => autorDTO.Libros, 
+                    opc => opc.MapFrom(MapAutorAutorDTO)
+                );
+            //metódo POST
             CreateMap<LibroCreacionDTO, Libro>()
                 .ForMember(libro => libro.LibrosAutores, opc => opc.MapFrom(MapLibroAutor));
-            CreateMap<Libro, LibroDTO>();
+            //metódo GET
+            CreateMap<Libro, LibroDTO>()
+                .ForMember(libroDTO => libroDTO.Autores, opciones => opciones.MapFrom(MapLibroLibroDTO));
+            //metódo POST
             CreateMap<ComentarioCreacionDTO, Comentario>();
+            //metódo GET
             CreateMap<Comentario, ComentarioDTO>();
+        }
+
+        private List<LibroDTO> MapAutorAutorDTO(Autor autor, AutorDTO autorDTO)
+        {
+            var resultado = new List<LibroDTO>();
+
+            if(autor.LibrosAutores == null) return resultado;
+
+            foreach (var libroAutor in autor.LibrosAutores)
+            {
+                resultado.Add(
+                        new LibroDTO()
+                        {
+                            Id = libroAutor.LibroId,
+                            Titulo = libroAutor.Libro.Titulo
+                        }
+                    );
+            }
+
+            return resultado;
+        }
+
+        private List<AutorDTO> MapLibroLibroDTO(Libro libro, LibroDTO libroDTO)
+        {
+            var resultado = new List<AutorDTO>();
+
+            if(libro.LibrosAutores == null) return resultado;
+
+            foreach (var libroAutor in libro.LibrosAutores)
+            {
+                resultado.Add(
+                              new AutorDTO() 
+                              { 
+                                  Id = libroAutor.AutorId, 
+                                  Nombre = libroAutor.Autor.Nombre
+                              }
+                             );
+            }
+
+            return resultado;
         }
 
         private List<LibroAutor> MapLibroAutor(LibroCreacionDTO dTO, Libro libro)

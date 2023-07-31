@@ -23,7 +23,17 @@ namespace WebApiAutores.Controllers
         [HttpGet]
         public async Task<List<LibroDTO>> Get()
         {
-            var libros = await _context.Libros.ToListAsync();
+            var libros = await _context.Libros
+                                       .Include(libroDb => libroDb.Comentarios)
+                                       .Include(libroDb => libroDb.LibrosAutores)
+                                       .ThenInclude(libroAutorDb => libroAutorDb.Autor)
+                                       .ToListAsync();
+
+            foreach (var libro in libros)
+            {
+                libro.LibrosAutores = libro.LibrosAutores.OrderBy(x => x.Orden).ToList();
+            }
+
             return mapper.Map<List<LibroDTO>>(libros);
         }
 
@@ -32,7 +42,14 @@ namespace WebApiAutores.Controllers
         {
             var exist = await _context.Libros.AnyAsync(x => x.Id == id);
             if (!exist) return NotFound();
-            var libro = await _context.Libros.Include(libroDb => libroDb.Comentarios).FirstOrDefaultAsync(x => x.Id == id);
+            var libro = await _context.Libros
+                                    .Include(libroDb => libroDb.Comentarios)
+                                    .Include(libroDb => libroDb.LibrosAutores)
+                                    .ThenInclude(libroAutorDb => libroAutorDb.Autor)
+                                    .FirstOrDefaultAsync(x => x.Id == id);
+
+            libro.LibrosAutores = libro.LibrosAutores.OrderBy(x => x.Orden).ToList();
+
             return mapper.Map<LibroDTO>(libro);
         }
 
