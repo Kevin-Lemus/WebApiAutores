@@ -11,7 +11,8 @@ namespace WebApiAutores.Utilidades
             //metódo POST
             CreateMap<AutorCreacionDTO, Autor>();
             //metódo GET
-            CreateMap<Autor, AutorDTO>()
+            CreateMap<Autor, AutorDTO>();
+            CreateMap<Autor, FullAutorDTO>()
                 .ForMember(
                     autorDTO => autorDTO.Libros, 
                     opc => opc.MapFrom(MapAutorAutorDTO)
@@ -20,7 +21,8 @@ namespace WebApiAutores.Utilidades
             CreateMap<LibroCreacionDTO, Libro>()
                 .ForMember(libro => libro.LibrosAutores, opc => opc.MapFrom(MapLibroAutor));
             //metódo GET
-            CreateMap<Libro, LibroDTO>()
+            CreateMap<Libro, LibroDTO>();
+            CreateMap<Libro, FullLibroDTO>()
                 .ForMember(libroDTO => libroDTO.Autores, opciones => opciones.MapFrom(MapLibroLibroDTO));
             //metódo POST
             CreateMap<ComentarioCreacionDTO, Comentario>();

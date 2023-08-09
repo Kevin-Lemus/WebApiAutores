@@ -27,8 +27,8 @@ namespace WebApiAutores.Controllers
             return _mapper.Map<List<AutorDTO>>(autores);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<AutorDTO>> Get([FromRoute] int id)
+        [HttpGet("{id:int}", Name = "ObtenerAutor")]
+        public async Task<ActionResult<FullAutorDTO>> Get([FromRoute] int id)
         {
             var autor = await _context.Autores
                                         .Include(autorDb => autorDb.LibrosAutores)
@@ -37,16 +37,16 @@ namespace WebApiAutores.Controllers
 
             if (autor == null) return NotFound();
 
-            return _mapper.Map<AutorDTO>(autor);
+            return _mapper.Map<FullAutorDTO>(autor);
         }
 
         [HttpGet("{nombre}")]
-        public async Task<ActionResult<List<AutorDTO>>> Get([FromRoute] string nombre)
+        public async Task<ActionResult<List<FullAutorDTO>>> Get([FromRoute] string nombre)
         {
             var autores = await _context.Autores
                           .Where(autor => autor.Nombre.Contains(nombre)).ToListAsync();
             if (!autores.Any()) return NotFound();
-            return _mapper.Map<List<AutorDTO>>(autores);
+            return _mapper.Map<List<FullAutorDTO>>(autores);
         }
 
         [HttpPost]
@@ -55,18 +55,21 @@ namespace WebApiAutores.Controllers
             var autor = _mapper.Map<Autor>(autorDTO);
             _context.Autores.Add(autor);
             await _context.SaveChangesAsync();
-            return Ok();
+
+            var autorRespuesta = _mapper.Map<AutorDTO>(autor);
+
+            return CreatedAtRoute("ObtenerAutor", new {id = autor.Id}, autorRespuesta);
         }
 
         [HttpPut("{id:int}")] // api/autor/id
-        public async Task<IActionResult> Put(Autor autor, int id)
+        public async Task<IActionResult> Put(AutorCreacionDTO autorDTO, int id)
         {
-            if (autor.Id != id) 
-                return BadRequest("El id enviado no coincide con el autor");
-
             var exist = await _context.Autores.AnyAsync(x => x.Id == id);
 
             if(!exist) return NotFound();
+
+            var autor = _mapper.Map<Autor>(autorDTO);
+            autor.Id = id;
 
             _context.Autores.Update(autor);
             await _context.SaveChangesAsync();
