@@ -28,6 +28,23 @@ namespace WebApiAutores.Utilidades
             CreateMap<ComentarioCreacionDTO, Comentario>();
             //metódo GET
             CreateMap<Comentario, ComentarioDTO>();
+            //método PATCH
+            CreateMap<LibroPatchDTO, Libro>()
+                .ForMember(libro => libro.LibrosAutores, opciones => opciones.MapFrom(MapLibroPatch))
+                .ReverseMap();
+        }
+
+        private List<LibroAutor> MapLibroPatch(LibroPatchDTO dTO, Libro libro)
+        {
+            var listaLibroAutor = new List<LibroAutor>();
+
+            if (dTO.AutoresIds == null) return listaLibroAutor;
+
+            foreach (var autorId in dTO.AutoresIds)
+            {
+                listaLibroAutor.Add(new LibroAutor() { AutorId = autorId });
+            }
+            return listaLibroAutor;
         }
 
         private List<LibroDTO> MapAutorAutorDTO(Autor autor, AutorDTO autorDTO)
